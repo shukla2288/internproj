@@ -1,73 +1,153 @@
-[//]: # (SPDX-License-Identifier: CC-BY-4.0)
+# Hyperledger Fabric Test Network and Node.js Application
 
-# Hyperledger Fabric Samples
+This repository provides a guide to set up a Hyperledger Fabric test network and to run a Node.js application that interacts with the network. 
 
-You can use Fabric samples to get started working with Hyperledger Fabric, explore important Fabric features, and learn how to build applications that can interact with blockchain networks using the Fabric SDKs. To learn more about Hyperledger Fabric, visit the [Fabric documentation](https://hyperledger-fabric.readthedocs.io/en/latest).
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [Clone Hyperledger Fabric Samples](#step-1-clone-hyperledger-fabric-samples)
+3. [Start the Test Network](#step-2-start-the-test-network)
+4. [Deploy Chaincode](#step-3-deploy-chaincode)
+5. [Setting Up Node.js Application](#step-4-setting-up-nodejs-application)
+6. [Running the Node.js Application](#step-5-running-the-nodejs-application)
+7. [Conclusion](#conclusion)
+8. [References](#references)
 
-Note that this branch contains samples for the latest Fabric release. For older Fabric versions, refer to the corresponding branches:
+## Prerequisites
 
-- [release-2.2](https://github.com/hyperledger/fabric-samples/tree/release-2.2)
-- [release-1.4](https://github.com/hyperledger/fabric-samples/tree/release-1.4)
+Ensure you have the following software installed on your machine:
 
-## Getting started with the Fabric samples
+- **Docker**: [Docker installation guide](https://docs.docker.com/get-docker/)
+- **Docker Compose**: Comes with Docker Desktop; verify installation using `docker-compose --version`.
+- **Go** (version 1.18 or higher): [Go installation](https://golang.org/doc/install)
+- **Node.js** (version 14.x or higher): [Node.js installation](https://nodejs.org/en/download/)
+- **npm**: Comes with Node.js; verify installation using `npm --version`.
 
-To use the Fabric samples, you need to download the Fabric Docker images and the Fabric CLI tools. First, make sure that you have installed all of the [Fabric prerequisites](https://hyperledger-fabric.readthedocs.io/en/latest/prereqs.html). You can then follow the instructions to [Install the Fabric Samples, Binaries, and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) in the Fabric documentation. In addition to downloading the Fabric images and tool binaries, the Fabric samples will also be cloned to your local machine.
+## Step 1: Clone Hyperledger Fabric Samples
 
-## Test network
+Clone the Hyperledger Fabric samples repository:
 
-The [Fabric test network](test-network) in the samples repository provides a Docker Compose based test network with two
-Organization peers and an ordering service node. You can use it on your local machine to run the samples listed below.
-You can also use it to deploy and test your own Fabric chaincodes and applications. To get started, see
-the [test network tutorial](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html).
+```bash
+git clone https://github.com/hyperledger/fabric-samples.git
+cd fabric-samples/test-network
+```
 
-The [Kubernetes Test Network](test-network-k8s) sample builds upon the Compose network, constructing a Fabric
-network with peer, orderer, and CA infrastructure nodes running on Kubernetes.  In addition to providing a sample
-Kubernetes guide, the Kube test network can be used as a platform to author and debug _cloud ready_ Fabric Client
-applications on a development or CI workstation.
+## Step 2: Start the Test Network
 
+To start the Hyperledger Fabric test network, run the following command:
 
-## Asset transfer samples and tutorials
+```bash
+./network.sh up createChannel -ca
+```
 
-The asset transfer series provides a series of sample smart contracts and applications to demonstrate how to store and transfer assets using Hyperledger Fabric.
-Each sample and associated tutorial in the series demonstrates a different core capability in Hyperledger Fabric. The **Basic** sample provides an introduction on how
-to write smart contracts and how to interact with a Fabric network using the Fabric SDKs. The **Ledger queries**, **Private data**, and **State-based endorsement**
-samples demonstrate these additional capabilities. Finally, the **Secured agreement** sample demonstrates how to bring all the capabilities together to securely
-transfer an asset in a more realistic transfer scenario.
+This command will:
+- Start the network with 2 organizations and 2 peers.
+- Create a channel named `mychannel`.
 
-|  **Smart Contract** | **Description** | **Tutorial** | **Smart contract languages** | **Application languages** |
-| -----------|------------------------------|----------|---------|---------|
-| [Basic](asset-transfer-basic) | The Basic sample smart contract that allows you to create and transfer an asset by putting data on the ledger and retrieving it. This sample is recommended for new Fabric users. | [Writing your first application](https://hyperledger-fabric.readthedocs.io/en/latest/write_first_app.html) | Go, JavaScript, TypeScript, Java | Go, TypeScript, Java |
-| [Ledger queries](asset-transfer-ledger-queries) | The ledger queries sample demonstrates range queries and transaction updates using range queries (applicable for both LevelDB and CouchDB state databases), and how to deploy an index with your chaincode to support JSON queries (applicable for CouchDB state database only). | [Using CouchDB](https://hyperledger-fabric.readthedocs.io/en/latest/couchdb_tutorial.html) | Go, JavaScript | Java, JavaScript |
-| [Private data](asset-transfer-private-data) | This sample demonstrates the use of private data collections, how to manage private data collections with the chaincode lifecycle, and how the private data hash can be used to verify private data on the ledger. It also demonstrates how to control asset updates and transfers using client-based ownership and access control. | [Using Private Data](https://hyperledger-fabric.readthedocs.io/en/latest/private_data_tutorial.html) | Go, TypeScript, Java | TypeScript |
-| [State-Based Endorsement](asset-transfer-sbe) | This sample demonstrates how to override the chaincode-level endorsement policy to set endorsement policies at the key-level (data/asset level). | [Using State-based endorsement](https://github.com/hyperledger/fabric-samples/tree/main/asset-transfer-sbe) | Java, TypeScript | JavaScript |
-| [Secured agreement](asset-transfer-secured-agreement) | Smart contract that uses implicit private data collections, state-based endorsement, and organization-based ownership and access control to keep data private and securely transfer an asset with the consent of both the current owner and buyer. | [Secured asset transfer](https://hyperledger-fabric.readthedocs.io/en/latest/secured_asset_transfer/secured_private_asset_transfer_tutorial.html)  | Go | TypeScript |
-| [Events](asset-transfer-events) | The events sample demonstrates how smart contracts can emit events that are read by the applications interacting with the network. | [README](asset-transfer-events/README.md)  | Go, JavaScript, Java | Go, TypeScript, Java |
-| [Attribute-based access control](asset-transfer-abac) | Demonstrates the use of attribute and identity based access control using a simple asset transfer scenario | [README](asset-transfer-abac/README.md)  | Go | _None_ |
+### Verify the Network
 
-## Full stack asset transfer guide
+Check if the network is running by listing the Docker containers:
 
-The [full stack asset transfer guide](full-stack-asset-transfer-guide#readme) workshop demonstrates how a generic asset transfer solution for Hyperledger Fabric can be developed and deployed. This covers chaincode development, client application development, and deployment to a production-like environment.
+```bash
+docker ps
+```
 
-## Additional samples
+You should see containers for the peers and the orderer.
 
-Additional samples demonstrate various Fabric use cases and application patterns.
+## Step 3: Deploy Chaincode
 
-|  **Sample** | **Description** | **Documentation** |
-| -------------|------------------------------|------------------|
-| [Off chain data](off_chain_data) | Learn how to use block events to build an off-chain database for reporting and analytics. | [Peer channel-based event services](https://hyperledger-fabric.readthedocs.io/en/latest/peer_event_services.html) |
-| [Token SDK](token-sdk) | Sample REST API around the Hyperledger Labs [Token SDK](https://github.com/hyperledger-labs/fabric-token-sdk) for privacy friendly (zero knowledge proof) UTXO transactions. | [README](token-sdk/README.md) |
-| [Token ERC-20](token-erc-20) | Smart contract demonstrating how to create and transfer fungible tokens using an account-based model. | [README](token-erc-20/README.md) |
-| [Token UTXO](token-utxo) | Smart contract demonstrating how to create and transfer fungible tokens using a UTXO (unspent transaction output) model. | [README](token-utxo/README.md) |
-| [Token ERC-1155](token-erc-1155) | Smart contract demonstrating how to create and transfer multiple tokens (both fungible and non-fungible) using an account based model. | [README](token-erc-1155/README.md) |
-| [Token ERC-721](token-erc-721) | Smart contract demonstrating how to create and transfer non-fungible tokens using an account-based model. | [README](token-erc-721/README.md) |
-| [High throughput](high-throughput) | Learn how you can design your smart contract to avoid transaction collisions in high volume environments. | [README](high-throughput/README.md) |
-| [Simple Auction](auction-simple) | Run an auction where bids are kept private until the auction is closed, after which users can reveal their bid. | [README](auction-simple/README.md) |
-| [Dutch Auction](auction-dutch) | Run an auction in which multiple items of the same type can be sold to more than one buyer. This example also includes the ability to add an auditor organization. | [README](auction-dutch/README.md) |
+Deploy your chaincode to the network. For example, to deploy a chaincode named `basic`, run:
 
+```bash
+./network.sh deployCC -ccn basic -ccp ../chaincode/asset-transfer -ccl go
+```
 
-## License <a name="license"></a>
+### Verify Chaincode Deployment
 
-Hyperledger Project source code files are made available under the Apache
-License, Version 2.0 (Apache-2.0), located in the [LICENSE](LICENSE) file.
-Hyperledger Project documentation files are made available under the Creative
-Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.
+After deployment, you can query the installed chaincode:
+
+```bash
+peer lifecycle chaincode queryinstalled
+```
+
+## Step 4: Setting Up Node.js Application
+
+### Create a Node.js Application
+
+1. Create a new directory for your Node.js application:
+
+```bash
+mkdir my-node-app
+cd my-node-app
+```
+
+2. Initialize a new Node.js project:
+
+```bash
+npm init -y
+```
+
+3. Install the Hyperledger Fabric SDK for Node.js:
+
+```bash
+npm install fabric-network
+```
+
+### Sample Code for Node.js Application
+
+Create an `index.js` file in your project directory with the following code:
+
+```javascript
+const { Gateway, Wallets } = require('fabric-network');
+const path = require('path');
+const fs = require('fs');
+const yaml = require('js-yaml');
+
+async function main() {
+    const ccpPath = path.resolve(__dirname, '..', 'fabric-samples', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.yaml');
+    const ccp = yaml.load(fs.readFileSync(ccpPath, 'utf8'));
+
+    const walletPath = path.join(process.cwd(), 'wallet');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+
+    const gateway = new Gateway();
+    await gateway.connect(ccp, { wallet, identity: 'user1', discovery: { enabled: true, asLocalhost: true } });
+
+    const network = await gateway.getNetwork('mychannel');
+    const contract = network.getContract('basic');
+
+    // Example of invoking a transaction
+    const result = await contract.submitTransaction('CreateAsset', 'asset1', 'owner1', 'description', '100');
+    console.log(`Transaction has been submitted, result is: ${result.toString()}`);
+
+    // Example of querying an asset
+    const queryResult = await contract.evaluateTransaction('QueryAsset', 'asset1');
+    console.log(`Asset details: ${queryResult.toString()}`);
+
+    await gateway.disconnect();
+}
+
+main().catch(console.error);
+```
+
+### Update the Wallet
+
+Before running your application, ensure you have the required identities in your wallet. You may need to follow the setup for creating a wallet and adding users. Refer to the Fabric SDK documentation for more details.
+
+## Step 5: Running the Node.js Application
+
+1. Ensure your Hyperledger Fabric network is running.
+
+2. Start your Node.js application:
+
+```bash
+node index.js
+```
+
+## Conclusion
+
+This guide provides the necessary steps to set up a Hyperledger Fabric test network and a Node.js application to interact with it. You can expand upon this foundation by adding more functionality to your chaincode and client application.
+
+## References
+
+- [Hyperledger Fabric Documentation](https://hyperledger-fabric.readthedocs.io/en/latest/)
+- [Fabric SDK for Node.js](https://hyperledger.github.io/fabric-sdk-node/release-2.2/)
